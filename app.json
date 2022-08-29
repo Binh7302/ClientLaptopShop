@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "ClientLaptopShop",
+    "slug": "ClientLaptopShop",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "ClientLaptopShop"
+}
