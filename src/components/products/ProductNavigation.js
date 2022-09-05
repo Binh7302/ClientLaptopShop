@@ -26,13 +26,13 @@ const ProductNavigation = (props) => {
                 },
                 tabBarLabel: ({focused}) => {
                     if (route.name == "HomeStack" && focused){
-                        return <Text style={styles.text}>Trang chủ</Text>
+                        return <Text style={styles.text}>Home</Text>
                     } else if (route.name == "SearchStack" && focused){
-                        return <Text style={styles.text}>Mở rộng</Text>
+                        return <Text style={styles.text}>More</Text>
                     } else if (route.name == "Cart" && focused){
-                        return <Text style={styles.text}>Giỏ hàng</Text>
+                        return <Text style={styles.text}>Cart</Text>
                     } else if (route.name == "ProfileStack" && focused){
-                        return <Text style={styles.text}>Trang cá nhân</Text>
+                        return <Text style={styles.text}>Acount</Text>
                     }
                     return null;
                 },
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     },
     text: {
         fontSize: 12,
-        color: '#100'
+        color: '#7FB77E',
+        fontWeight: '500'
     }
 })
