@@ -25,3 +25,18 @@ export const getOneBrand = async (brandID) => {
     const res = await axiosInstance.get(`/api/get-one-brand/${brandID}`);
     return res;
 }
+
+export const getAllBrand = async () => {
+    const res = await axiosInstance.get(`/api/get-all-brand`);
+    return res;
+}
+
+export const getProductByBrandID = async (brandID) => {
+    const res = await axiosInstance.get(`/api/get-product-by-brandID/${brandID}`);
+    return res;
+}
+
+export const getSearchProductWithBrand = async (search, brandID) => {
+    const res = await axiosInstance.get(`/api/get-product-search-with-brandID/${brandID}?search=${search}`);
+    return res;
+}

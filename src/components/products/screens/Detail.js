@@ -1,42 +1,92 @@
-import { StyleSheet, Text, View, Image, Pressable, FlatList, TextInput } from 'react-native'
+import { StyleSheet, Text, View, Image, Pressable, FlatList, TextInput, ToastAndroid } from 'react-native'
 import React, { useState, useContext, useEffect } from 'react'
 import { ProductContext } from '../ProductContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const Detail = (props) => {
   const { navigation, route: { params: { _id } } } = props;
   const { onGetOneProduct, onGetOneBrand, product, brand, onGetImageByProductID, images } = useContext(ProductContext);
-  const [br, setbr] = useState();
   const [so, setSo] = useState(1);
-  
+  const [br, setbr] = useState({});
+  // const [listCart, setListCart] = useState([]);
+
 
   const cong = () => {
-    if(so >= 0) {
-      setSo(so+1);
+    if (so >= 0) {
+      setSo(so + 1);
     }
   }
   const tru = () => {
-    if(so > 1) {
-      setSo(so-1);
+    if (so > 1) {
+      setSo(so - 1);
     }
   }
 
   async function fetchData() {
     const res = await onGetOneProduct(_id);
-    const { price, name, brand, quantity, image } = product;
-    setbr(brand);
-    console.log("brandID: ", brand);
-    await onGetOneBrand(brand);
-    await onGetImageByProductID(_id);
-    console.log("skhdfgbhdf????????: ", images);
+    const res0 = await onGetOneBrand(res.brand);
 
+    setbr(res0);
+    await onGetImageByProductID(_id);
   }
 
   useEffect(() => {
 
     fetchData();
-  }, [br]);
+  }, []);
 
+  const onBuyNow = async () => {
+    try {
+      const listCart0 = await AsyncStorage.getItem("listCart");
+
+      if (listCart0) {
+        const listCart1 = JSON.parse(listCart0);
+        const cartDetail0 = {
+          "id": listCart1.length,
+          "product": product,
+          "quantityPurchased": so,
+          "amount": product.price,
+        }
+
+        for (let index = 0; index < listCart1.length; index++) {
+          if (product._id == listCart1[index].product._id) {
+            ToastAndroid.show('Sản phẩm đã có trong giỏ hàng', ToastAndroid.CENTER);
+            console.log("Listcar...: ", listCart0);
+
+            return;
+          }
+        }
+        listCart1.push(cartDetail0);
+        AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
+        ToastAndroid.show('Thêm vào giỏ hàng thành công', ToastAndroid.CENTER);
+
+
+      } else {
+        const listCart1 = [];
+        const cartDetail0 = {
+          "id": 0,
+          "product": product,
+          "quantityPurchased": so,
+          "amount": product.price,
+        }
+        listCart1.push(cartDetail0);
+        AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
+        ToastAndroid.show('Thêm vào giỏ hàng thành công', ToastAndroid.CENTER);
+
+      }
+      console.log("Listcar...: ", listCart0);
+
+
+    } catch (error) {
+      console.log("Buy erro: ", error);
+    }
+
+  };
+
+  const onRemove = async () => {
+    AsyncStorage.removeItem("listCart");
+  }
   const { price, name, brandID, quantity, image, description } = product;
 
 
@@ -64,18 +114,14 @@ const Detail = (props) => {
           </View>
         </View>
         <Text style={styles.textPrice}>${price}</Text>
-        <Text style={styles.textDes0}>Description</Text>
+        <Text style={styles.textDes0}>Mô tả</Text>
         <Text style={styles.textDes1}>{description}</Text>
         <View style={styles.brandContainer}>
-          <Text style={styles.textBrand0}>Brand:</Text>
-          <Text style={styles.textBrand1}>{brand.name}</Text>
+          <Text style={styles.textBrand0}>Nhãn hàng:</Text>
+          <Text style={styles.textBrand1}>{br.name}</Text>
         </View>
-        <View style={styles.quantityContainer}>
-          <Text style={styles.textQuan0} on>Quantity:</Text>
-          <Text style={styles.textQuan1}>{quantity}</Text>
-        </View>
-        <Pressable style={styles.containerBuy}>
-          <Text style={styles.textBuy}>BUY NOW</Text>
+        <Pressable style={styles.containerBuy} onPress={onBuyNow}>
+          <Text style={styles.textBuy}>Thêm vào giỏ hàng</Text>
         </Pressable>
       </View>
 
@@ -124,7 +170,7 @@ const styles = StyleSheet.create({
   },
   containerTotal: {
     flexDirection: 'row',
-    backgroundColor: '#B1D7B4',
+    backgroundColor: '#7FB77E',
     width: 100,
     height: 30,
     borderRadius: 20,
@@ -143,7 +189,7 @@ const styles = StyleSheet.create({
   containerBuy: {
     width: '100%',
     height: 50,
-    backgroundColor: '#B1D7B4',
+    backgroundColor: '#7FB77E',
     alignItems: 'center',
     justifyContent: 'center',
     marginTop: 30,
@@ -225,7 +271,7 @@ const styles = StyleSheet.create({
   productImage: {
     width: '100%',
     height: 400,
-    resizeMode: 'center',
+    resizeMode: 'contain',
   },
   productImageContainer: {
     position: 'relative',

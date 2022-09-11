@@ -2,16 +2,17 @@ import { StyleSheet, Text, View, Image, Pressable, FlatList, TextInput } from 'r
 import React, { useState, useContext, useEffect } from 'react'
 import { ProductContext } from '../ProductContext';
 
-const Home = (props) => {
-    const { navigation } = props;
-    const { onGetAllProduct, onGetSearchProduct, products } = useContext(ProductContext);
-    const [isLoading, setIsLoading] = useState(false);
+const More = (props) => {
 
+    const { navigation } = props;
+    const { onGetAllBrand, brands } = useContext(ProductContext);
+    const [isLoading, setIsLoading] = useState(false);
 
     //tu dong chay khi component dc goi
     async function fetchData() {
         setIsLoading(true);
-        const res = await onGetAllProduct();
+        await onGetAllBrand();
+        console.log('brands: ', brands);
         setIsLoading(false);
     }
     useEffect(() => {
@@ -19,32 +20,20 @@ const Home = (props) => {
         fetchData();
     }, []);
 
-
-    const onSearch = (name) => {
-        onGetSearchProduct(name);
-    }
-
     const renderItem = ({ item }) => {
-        const { _id, name, price, image } = item;
+        const { _id, name, image } = item;
         return (
             <View>
-                <Pressable onPress={() => navigation.navigate('Detail', { _id: _id })} style={styles.containerItem}>
-
-                    <View style={styles.productImageContainer}>
-                        <Image style={styles.productImage} source={{ uri: image }}></Image>
-                    </View>
-
-                    <View style={styles.boxText}>
-                        <Text numberOfLines={2} style={styles.txtname}>{name}</Text>
-                        <Text style={styles.txtprice}>${price}</Text>
-                    </View>
-
-
+                <Pressable onPress={() => navigation.navigate('ListMore', { _id: _id })} style={styles.containerItem}>
+                    <Image style={styles.brandImage} source={{ uri: image }}></Image>
                 </Pressable>
             </View>
 
         )
     }
+
+
+
 
     return (
         <View style={styles.container}>
@@ -52,20 +41,24 @@ const Home = (props) => {
                 isLoading == true ?
                     <Text style={styles.textLoading}>Loading...</Text> :
                     <View style={styles.containerS}>
-                        <View style={styles.searchContainer}>
-                            <View style={styles.searchIcon}>
-                                <Image style={styles.iconImage} source={require('../../../assets/images/icon_search.png')} />
-                            </View>
-                            <TextInput style={styles.textInputSearch}
-                                placeholder='Tìm kiếm...'
-                                onChangeText={(text) => onSearch(text)}></TextInput>
-                        </View>
+
+                        <Text style={styles.textTienIch}>Mở rộng</Text>
+
+
                         <View style={styles.viewGachChan}>
                             <Text> </Text>
                         </View>
 
+                        <Text style={styles.textBrand}>Tiện ích</Text>
+                        <View style={styles.containerTienIch}>
+                            <Pressable onPress={() => navigation.navigate('ListMore', { _id: 0 })} style={styles.containerItem0}>
+                                <Text style={styles.textBrandAll}>Tất cả</Text>
+                            </Pressable>
+
+                        </View>
+                        <Text style={styles.textBrand}>Nhãn hàng</Text>
                         <FlatList style={styles.fla}
-                            data={products}
+                            data={brands}
                             renderItem={renderItem}
                             keyExtractor={Math.random}
                             showsVerticalScrollIndicator={false}
@@ -73,7 +66,6 @@ const Home = (props) => {
                             numColumns={2}
                             contentContainerStyle={{ alignSelf: 'center' }}>
                         </FlatList>
-
                     </View>
 
 
@@ -82,47 +74,57 @@ const Home = (props) => {
     )
 }
 
-export default Home
+export default More
 
 const styles = StyleSheet.create({
-    txtprice: {
+    textBrandAll: {
         fontWeight: '700',
-        color: '#7FB77E',
-        fontSize: 16,
+        fontSize: 18,
+        color: '#B1D7B4',
     },
-    txtname: {
-        height: 40,
-        fontWeight: '500',
-
+    textBrand: {
+        fontSize: 18,
+        marginLeft: 16,
+        marginBottom: 8,
+        marginTop: 30,
+        fontWeight: '700',
     },
-    boxText: {
-        paddingHorizontal: 10,
-    },
-    productImageContainer: {
-
-    },
-    productImage: {
+    brandImage: {
         width: '100%',
-        height: 160,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
+        height: 50,
+        borderRadius: 40,
         resizeMode: 'contain',
     },
     containerItem: {
         width: 190,
-        height: 230,
+        height: 55,
         margin: 5,
         borderRadius: 10,
         borderColor: '#B1D7B4',
         borderWidth: 0.5,
-
+        backgroundColor: 'white',
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    containerItem0: {
+        width: 190,
+        height: 55,
+        margin: 5,
+        borderRadius: 10,
+        borderColor: '#B1D7B4',
+        borderWidth: 0.5,
+        backgroundColor: 'white',
+        borderRadius: 40,
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginLeft: 10,
     },
     viewGachChan: {
         width: '100%',
         height: 1,
         backgroundColor: '#7FB77E',
         marginTop: 10,
-        marginBottom: 6,
     },
     textInputSearch: {
         width: '100%',
@@ -156,9 +158,20 @@ const styles = StyleSheet.create({
         borderColor: '#7FB77E',
         marginHorizontal: 10,
     },
-
+    textTienIch: {
+        fontWeight: '800',
+        fontSize: 22,
+        width: '100%',
+        textAlign: 'center',
+        justifyContent: 'center',
+        marginTop: 30,
+    },
     containerS: {
-        // marginHorizontal: 10,
+    },
+    container: {
+        backgroundColor: 'white',
+        height: '100%'
+
     },
     textLoading: {
         textAlign: 'center',
@@ -168,10 +181,4 @@ const styles = StyleSheet.create({
     fla: {
         marginBottom: 110,
     },
-    container: {
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'white',
-    },
-
 })
