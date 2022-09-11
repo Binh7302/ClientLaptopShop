@@ -211,7 +211,7 @@ const Cart = (props) => {
       {
         haveItem == false ?
           <Pressable onTouchStart={onRestartCart}>
-            <Text style={styles.textLoading} >Bạn chưa mua gì hết</Text>
+            <Text style={styles.textLoading} >Chưa có sản phẩm nào</Text>
           </Pressable>
           :
           <View>
@@ -253,11 +253,12 @@ export default Cart
 
 const styles = StyleSheet.create({
   textLoading: {
-    fontWeight: '700',
+    fontWeight: '600',
     fontSize: 20,
     alignSelf: 'center',
     height: '100%',
     textAlignVertical: 'center',
+    marginBottom: -100,
   },
   txtButton: {
     fontWeight: '700',
