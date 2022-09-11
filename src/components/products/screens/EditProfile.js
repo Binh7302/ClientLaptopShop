@@ -23,7 +23,7 @@ const EditProfile = (props) => {
     test = res;
     setUser(test);
     setName(test.name);
-    setPhonenumber(res.phonenumber);
+    setPhonenumber(test.phonenumber);
     setEmail(res.email);
     try {
       const addr0 = await AsyncStorage.getItem("address");
@@ -65,7 +65,7 @@ const EditProfile = (props) => {
         </View>
         <View style={styles.inforCotainer}>
           <Text style={styles.txtMidName}>{user.name}</Text>
-          <Text style={styles.txtMidPhone}>{phonenumber}</Text>
+          <Text style={styles.txtMidPhone}>{user.phonenumber}</Text>
         </View>
       </View>
 
@@ -98,7 +98,7 @@ const EditProfile = (props) => {
           <Text style={styles.txtName}>Địa chỉ</Text>
           <View style={styles.itemNameContainer}>
             <Image style={styles.iconName} source={require('../../../assets/images/icon_address.png')} />
-            <TextInput value={address} onChangeText={setAddress} style={styles.textInput} />
+            <TextInput value={address} onChangeText={setAddress} style={styles.textInput} numberOfLines={2} />
           </View>
         </View>
 

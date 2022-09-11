@@ -84,9 +84,6 @@ const Detail = (props) => {
 
   };
 
-  const onRemove = async () => {
-    AsyncStorage.removeItem("listCart");
-  }
   const { price, name, brandID, quantity, image, description } = product;
 
 

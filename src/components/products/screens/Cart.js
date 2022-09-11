@@ -9,7 +9,9 @@ const Cart = (props) => {
 
   const [listCart, setListCart] = useState([]);
   const [haveItem, setHaveItem] = useState(false);
-  const { onGetOneProduct } = useContext(ProductContext);
+  const { onAddCart, onAddCartDetail } = useContext(ProductContext);
+  const { onGetOneUser } = useContext(UserContext);
+
   const [total, setTotal] = useState(0);
 
   const onAlertBuy = () =>
@@ -27,20 +29,56 @@ const Cart = (props) => {
     );
 
   const onBuyNow = async () => {
-    ToastAndroid.show('Đặt hàng thành công', ToastAndroid.CENTER);
+    try {
+      // doc list cartDetail tu AsyncStorage
+      const listCart0 = await AsyncStorage.getItem("listCart");
+      const listCart1 = JSON.parse(listCart0);
+      if (listCart1) {
+        // lay user id
+        const username0 = await AsyncStorage.getItem("username");
+        const username = JSON.parse(username0)
+        const user = await onGetOneUser(username);
+
+        // lay address
+        const address0 = await AsyncStorage.getItem("address");
+        const address = JSON.parse(address0)
+
+        // lay ngay hien tai
+        const date = new Date();
+
+        // tao cart tren database sau do lay _id cua cart do
+        const cartSave = await onAddCart(user._id, address, 0, total+2, date);
+
+        // luu tung item len database
+        for (let index = 0; index < listCart1.length; index++) {
+          await onAddCartDetail(listCart1[index].quantityPurchased, listCart1[index].amount, listCart1[index].product._id, cartSave._id);
+        }
+        // dat hang xong xoa cac item trong gio hang
+        AsyncStorage.removeItem("listCart");
+        ToastAndroid.show('Đặt hàng thành công', ToastAndroid.CENTER);
+        onRestartCart();
+      }
+
+    } catch (error) {
+      console.log("onBuyNow error: ", error);
+    }
+
+
   }
 
 
   const onSetTotal = async () => {
     const listCart0 = await AsyncStorage.getItem("listCart");
     const listCart1 = JSON.parse(listCart0);
-    var total0 = 0;
-    for (let index = 0; index < listCart1.length; index++) {
-      total0 += (listCart1[index].amount * listCart1[index].quantityPurchased);
-    }
-    setTotal(total0);
-    if(total <= 0) {
-      setHaveItem(false);
+    if (listCart1) {
+      var total0 = 0;
+      for (let index = 0; index < listCart1.length; index++) {
+        total0 += (listCart1[index].amount * listCart1[index].quantityPurchased);
+      }
+      setTotal(total0);
+      if (total <= 0) {
+        setHaveItem(false);
+      }
     }
   }
 
@@ -48,26 +86,30 @@ const Cart = (props) => {
   const onMinusQuantity = async (_id) => {
     const listCart0 = await AsyncStorage.getItem("listCart");
     const listCart1 = JSON.parse(listCart0);
-    for (let index = 0; index < listCart1.length; index++) {
-      if (listCart1[index].product._id == _id & listCart1[index].quantityPurchased > 1) {
-        listCart1[index].quantityPurchased--;
-        AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
-        onRestartCart();
-        return;
+    if (listCart1) {
+      for (let index = 0; index < listCart1.length; index++) {
+        if (listCart1[index].product._id == _id & listCart1[index].quantityPurchased > 1) {
+          listCart1[index].quantityPurchased--;
+          AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
+          onRestartCart();
+          return;
+        }
       }
     }
+
   }
 
   const onPlusQuantity = async (_id) => {
     const listCart0 = await AsyncStorage.getItem("listCart");
     const listCart1 = JSON.parse(listCart0);
-
-    for (let index = 0; index < listCart1.length; index++) {
-      if (listCart1[index].product._id == _id & listCart1[index].quantityPurchased > 0) {
-        listCart1[index].quantityPurchased++;
-        AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
-        onRestartCart();
-        return;
+    if (listCart1) {
+      for (let index = 0; index < listCart1.length; index++) {
+        if (listCart1[index].product._id == _id & listCart1[index].quantityPurchased > 0) {
+          listCart1[index].quantityPurchased++;
+          AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
+          onRestartCart();
+          return;
+        }
       }
     }
   }
@@ -75,12 +117,14 @@ const Cart = (props) => {
   const onDeleteCartDetail = async (_id) => {
     const listCart0 = await AsyncStorage.getItem("listCart");
     const listCart1 = JSON.parse(listCart0);
-    for (let index = 0; index < listCart1.length; index++) {
-      if (listCart1[index].product._id == _id) {
-        listCart1.splice(index, 1);
-        AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
-        onRestartCart();
-        return;
+    if (listCart1) {
+      for (let index = 0; index < listCart1.length; index++) {
+        if (listCart1[index].product._id == _id) {
+          listCart1.splice(index, 1);
+          AsyncStorage.setItem("listCart", JSON.stringify(listCart1));
+          onRestartCart();
+          return;
+        }
       }
     }
   }

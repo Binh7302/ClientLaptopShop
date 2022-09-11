@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState } from 'react';
-import { getAllProduct, getOneProduct, getImageByProductID, getSearchProduct, getOneBrand, getAllBrand, getProductByBrandID, getSearchProductWithBrand } from './ProductService';
+import { getAllProduct, getOneProduct, getImageByProductID, getSearchProduct, getOneBrand, getAllBrand, getProductByBrandID, getSearchProductWithBrand, addCart, addCartDetail, getAllCart, getAllCartDetail, getOneCart } from './ProductService';
 
 export const ProductContext = createContext();
 
@@ -114,12 +114,57 @@ export const ProductContextProvider = (props) => {
         }
     }
 
+    const onAddCart = async (userID, address, status, total, createAt) => {
+        try {
+            const res = await addCart(userID, address, status, total, createAt);
+            return res;
+        } catch (error) {
+            console.log('onAddCart error: ', error);
+        }
+    }
+
+    const onAddCartDetail = async (quantityPurchased, amount, productID, cartID) => {
+        try {
+            const res = await addCartDetail(quantityPurchased, amount, productID, cartID);
+            return res;
+        } catch (error) {
+            console.log('onAddCartDetail error: ', error);
+        }
+    }
+
+    const onGetAllCart = async (userID) => {
+        try {
+            const res = await getAllCart(userID);
+            return res;
+        } catch (error) {
+            console.log('onGetAllCart error: ', error);
+        }
+    }
+
+    const onGetAllCartDetail = async (cartID) => {
+        try {
+            const res = await getAllCartDetail(cartID);
+            return res;
+        } catch (error) {
+            console.log('onGetAllCartDetail error: ', error);
+        }
+    }
+
+    const onGetOneCart = async (cartID) => {
+        try {
+            const res = await getOneBrand(cartID);
+            return res;
+        } catch (error) {
+            console.log('onGetOneCart error: ', error);
+        }
+    }
+
     
 
     return (
         <ProductContext.Provider 
         value={{
-            onGetAllProduct, onGetImageByProductID, onGetOneProduct, onGetSearchProduct, onGetOneBrand, onGetAllBrand, onGetProductByBrandID, onGetAllProductForListMore, onGetSearchProductForListMore,onGetSearchProductWithBrand,
+            onGetAllProduct, onGetImageByProductID, onGetOneProduct, onGetSearchProduct, onGetOneBrand, onGetAllBrand, onGetProductByBrandID, onGetAllProductForListMore, onGetSearchProductForListMore,onGetSearchProductWithBrand, onAddCart, onAddCartDetail, onGetAllCart, onGetAllCartDetail, onGetOneCart,
             brand,products, product, images, brands
         }}
         >
