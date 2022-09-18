@@ -52,8 +52,6 @@ const Detail = (props) => {
         for (let index = 0; index < listCart1.length; index++) {
           if (product._id == listCart1[index].product._id) {
             ToastAndroid.show('Sản phẩm đã có trong giỏ hàng', ToastAndroid.CENTER);
-            console.log("Listcar...: ", listCart0);
-
             return;
           }
         }
@@ -75,7 +73,6 @@ const Detail = (props) => {
         ToastAndroid.show('Thêm vào giỏ hàng thành công', ToastAndroid.CENTER);
 
       }
-      console.log("Listcar...: ", listCart0);
 
 
     } catch (error) {

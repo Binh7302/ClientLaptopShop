@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable, FlatList, TextInput, ToastAndroid, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, Pressable, FlatList, TextInput, ToastAndroid, ScrollView, Alert, RefreshControl } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { useState, useContext, useEffect } from 'react';
 import { UserContext } from '../../users/UserContext';
@@ -8,11 +8,22 @@ import { ProductContext } from '../ProductContext';
 const CartHistory = (props) => {
   const { navigation } = props;
   const { onGetOneUser } = useContext(UserContext);
-  const { onGetAllCart } = useContext(ProductContext);
+  const { onGetAllCart, onUpdateCart } = useContext(ProductContext);
   const [listCartHistory, setListCartHistory] = useState([]);
   const [user, setUser] = useState({});
   const [name, setName] = useState('');
   const [phonenumber, setPhonenumber] = useState('');
+
+  // reload
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    fetchData();
+    wait(1000).then(() => setRefreshing(false));
+  }, []);
 
   const onFormatDate = (createAt) => {
     var d = new Date(createAt);
@@ -28,34 +39,41 @@ const CartHistory = (props) => {
     }
   }
 
-  const onGetTextColor = (status) => {
-    if (status == "Đang đóng gói") {
-      return 'green';
-    } 
-    else if (status == "Đang vận chuyển") {
-      return 'green';
-    }
-    else if (status == "Đã giao hàng") {
-      return 'blue';
-    }
-    else if (status == "Đã hủy") {
-      return 'Red';
-    }
+  const onAlertCancelOder = (_id) =>
+    Alert.alert(
+      "Thông báo",
+      "Bạn có chắc hủy đơn hàng này?",
+      [
+        {
+          text: "Không",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "Có", onPress: () => onCancelOder(_id) }
+      ]
+    );
+
+  const onCancelOder = async (_id) => {
+    // set cung id status :((
+    const statusID = "6326cda6fc13ae18e5000002";
+    await onUpdateCart(_id, statusID);
+    fetchData();
+    ToastAndroid.show('Đã hủy đơn hàng', ToastAndroid.CENTER);
   }
 
-  const onFormatStatus = (status) => {
-    if (status == 0) {
-      return "Đang đóng gói";
-    } else if (status == 1) {
-      return "Đang vận chuyển";
-    }
-    else if (status == 2) {
-      return "Đã giao hàng";
-    }
-    else if (status == 3) {
-      return "Đã hủy";
-    }
-  }
+  // const onFormatStatus = (status) => {
+  //   if (status == 0) {
+  //     return "Đang xử lý";
+  //   } else if (status == 1) {
+  //     return "Đang vận chuyển";
+  //   }
+  //   else if (status == 2) {
+  //     return "Đã hủy";
+  //   }
+  //   else if (status == 3) {
+  //     return "Đã giao hàng";
+  //   }
+  // }
 
   async function fetchData() {
     const username = await AsyncStorage.getItem("username");
@@ -69,11 +87,11 @@ const CartHistory = (props) => {
     if (listCartHistory0) {
       for (let index = 0; index < listCartHistory0.length; index++) {
         const dateString = onFormatDate(listCartHistory0[index].createAt);
-        const statusString = onFormatStatus(listCartHistory0[index].status);
+        // const statusString = onFormatStatus(listCartHistory0[index].status);
         const cart = {
           "_id": listCartHistory0[index]._id,
           "total": listCartHistory0[index].total,
-          "status": statusString,
+          "status": listCartHistory0[index].statusID.name,
           "address": listCartHistory0[index].address,
           "createAt": dateString,
         }
@@ -81,7 +99,7 @@ const CartHistory = (props) => {
       }
     }
     setListCartHistory(listCartHistory1);
-
+    console.log("lann..: ")
   }
 
   useEffect(() => {
@@ -100,12 +118,31 @@ const CartHistory = (props) => {
         </View>
         <View style={styles.containerBottom}>
           <Text style={styles.txtStatus0}>Trạng thái:</Text>
-          <Text style={styles.txtStatus}>{status}</Text>
+          <View>
+            {
+              status == "Đã hủy" ?
+                <Text style={styles.txtStatusHuy}>{status}</Text>
+                :
+                <Text style={styles.txtStatus}>{status}</Text>
+
+            }
+          </View>
         </View>
         <View style={styles.containerBottom}>
           <Text style={styles.txtAddress0}>Địa chỉ:</Text>
           <Text style={styles.txtAddress} >{address}</Text>
         </View>
+        <View style={styles.containerXuLy}>
+          {
+            status == "Đang xử lý" ?
+              <Pressable style={styles.containerHuy} onPress={() => onAlertCancelOder(_id)}>
+                <Text style={styles.txtHuy}>Hủy đơn hàng</Text>
+              </Pressable>
+              :
+              <View></View>
+          }
+        </View>
+
       </Pressable>
 
     )
@@ -121,14 +158,18 @@ const CartHistory = (props) => {
         <Text style={styles.textTop}>Lịch sử mua hàng</Text>
       </View>
 
-
       <FlatList style={styles.fla}
         data={listCartHistory}
         renderItem={renderItem}
         keyExtractor={Math.random}
         showsVerticalScrollIndicator={false}
-        showsHorizontalScrollIndicator={false}>
+        showsHorizontalScrollIndicator={false}
+        refreshControl={
+          < RefreshControl refreshing={refreshing} onRefresh={onRefresh}/>
+        }
+        >
       </FlatList>
+      
     </View>
 
   )
@@ -137,6 +178,25 @@ const CartHistory = (props) => {
 export default CartHistory
 
 const styles = StyleSheet.create({
+  containerXuLy: {
+    position: 'relative',
+    alignItems: 'flex-end',
+  },
+  txtHuy: {
+    color: 'white',
+    fontSize: 15,
+    fontWeight: '400',
+  },
+  containerHuy: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'orange',
+    width: '35%',
+    height: 50,
+    // position: 'absolute',
+    left: 0,
+    borderRadius: 5,
+  },
   txtAddress0: {
     marginRight: 8,
     fontWeight: '400',
@@ -152,6 +212,11 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     position: 'relative',
     margin: 2,
+  },
+  txtStatusHuy: {
+    color: 'red',
+    fontSize: 15,
+    fontWeight: '400',
   },
   txtStatus0: {
     marginRight: 8,

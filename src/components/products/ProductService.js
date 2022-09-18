@@ -41,8 +41,8 @@ export const getSearchProductWithBrand = async (search, brandID) => {
     return res;
 }
 
-export const addCart = async (userID, address, status, total, createAt) => {
-    const data = { userID, address, status, total, createAt };
+export const addCart = async (userID, address, statusID, total, createAt) => {
+    const data = { userID, address, statusID, total, createAt };
     const res = await axiosInstance.post(`/api/add-cart/`, data);
     return res;
 }
@@ -65,5 +65,11 @@ export const getAllCartDetail = async (cartID) => {
 
 export const getOneCart = async (cartID) => {
     const res = await axiosInstance.get(`/api/get-one-cart/${cartID}`);
+    return res;
+}
+
+export const updateCart = async (_id, statusID) => {
+    const data = { statusID };
+    const res = await axiosInstance.put(`/api/update-cart/${_id}`, data);
     return res;
 }

@@ -1,5 +1,5 @@
 import React, { useContext, createContext, useState } from 'react';
-import { getAllProduct, getOneProduct, getImageByProductID, getSearchProduct, getOneBrand, getAllBrand, getProductByBrandID, getSearchProductWithBrand, addCart, addCartDetail, getAllCart, getAllCartDetail, getOneCart } from './ProductService';
+import { getAllProduct, getOneProduct, getImageByProductID, getSearchProduct, getOneBrand, getAllBrand, getProductByBrandID, getSearchProductWithBrand, addCart, addCartDetail, getAllCart, getAllCartDetail, getOneCart, updateCart } from './ProductService';
 
 export const ProductContext = createContext();
 
@@ -37,7 +37,6 @@ export const ProductContextProvider = (props) => {
     const onGetOneBrand = async (brandID) => {
         try {
             const res = await getOneBrand(brandID);
-            console.log('onGetOneBrand: ', res);
             setBrand(res);
             return res;
         } catch (error) {
@@ -50,8 +49,6 @@ export const ProductContextProvider = (props) => {
             const res = await getOneProduct(id);
             setProduct(res);
             return res;
-            console.log('onGetOneProduct: ', res);
-
         } catch (error) {
             console.log('onGetOneProduct error: ', error);
         }
@@ -61,7 +58,6 @@ export const ProductContextProvider = (props) => {
         try {
             const res = await getImageByProductID(productID);
             setImages(res);
-            // console.log('onGetImageByProductID: ', images);
 
         } catch (error) {
             console.log('onGetImageByProductID error: ', error);
@@ -159,12 +155,21 @@ export const ProductContextProvider = (props) => {
         }
     }
 
+    const onUpdateCart = async (_id, statusID) => {
+        try {
+            await updateCart(_id, statusID);
+            return;
+        } catch (error) {
+            console.log('onUpdateCart error: ', error);
+        }
+    }
+
     
 
     return (
         <ProductContext.Provider 
         value={{
-            onGetAllProduct, onGetImageByProductID, onGetOneProduct, onGetSearchProduct, onGetOneBrand, onGetAllBrand, onGetProductByBrandID, onGetAllProductForListMore, onGetSearchProductForListMore,onGetSearchProductWithBrand, onAddCart, onAddCartDetail, onGetAllCart, onGetAllCartDetail, onGetOneCart,
+            onGetAllProduct, onGetImageByProductID, onGetOneProduct, onGetSearchProduct, onGetOneBrand, onGetAllBrand, onGetProductByBrandID, onGetAllProductForListMore, onGetSearchProductForListMore,onGetSearchProductWithBrand, onAddCart, onAddCartDetail, onGetAllCart, onGetAllCartDetail, onGetOneCart, onUpdateCart,
             brand,products, product, images, brands
         }}
         >

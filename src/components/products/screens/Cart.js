@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, Pressable, FlatList, TextInput, Alert, ToastAndroid } from 'react-native'
+import { StyleSheet, Text, View, Image, Pressable, FlatList, TextInput, Alert, ToastAndroid, ScrollView, RefreshControl } from 'react-native'
 import React, { useState, useContext, useEffect } from 'react'
 import { ProductContext } from '../ProductContext';
 import { UserContext } from '../../users/UserContext';
@@ -13,6 +13,19 @@ const Cart = (props) => {
   const { onGetOneUser } = useContext(UserContext);
 
   const [total, setTotal] = useState(0);
+
+
+  // reload
+  const wait = (timeout) => {
+    return new Promise(resolve => setTimeout(resolve, timeout));
+  }
+  const [refreshing, setRefreshing] = useState(false);
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    onRestartCart();
+    wait(1000).then(() => setRefreshing(false));
+  }, []);
+
 
   const onAlertBuy = () =>
     Alert.alert(
@@ -47,7 +60,9 @@ const Cart = (props) => {
         const date = new Date();
 
         // tao cart tren database sau do lay _id cua cart do
-        const cartSave = await onAddCart(user._id, address, 0, total+2, date);
+        const statusID = "6326cda6fc13ae18e5000000";
+
+        const cartSave = await onAddCart(user._id, address, statusID, total + 2, date);
 
         // luu tung item len database
         for (let index = 0; index < listCart1.length; index++) {
@@ -135,6 +150,11 @@ const Cart = (props) => {
       if (listCart0) {
         setListCart(JSON.parse(listCart0));
         setHaveItem(true);
+        if (JSON.parse(listCart0).length == 0) {
+          setHaveItem(false);
+        } else {
+          setHaveItem(true);
+        }
       } else {
         setHaveItem(false);
       }
@@ -155,11 +175,16 @@ const Cart = (props) => {
       if (listCart0) {
         setListCart(JSON.parse(listCart0));
         setHaveItem(true);
-
+        if (JSON.parse(listCart0).length == 0) {
+          setHaveItem(false);
+        } else {
+          setHaveItem(true);
+        }
       } else {
         setHaveItem(false);
       }
       onSetTotal();
+
     } catch (error) {
       console.log("Cart erro: ", error);
     }
@@ -210,9 +235,13 @@ const Cart = (props) => {
       </View>
       {
         haveItem == false ?
-          <Pressable onTouchStart={onRestartCart}>
+          <ScrollView style={styles.scr}
+            refreshControl={
+              < RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }>
             <Text style={styles.textLoading} >Chưa có sản phẩm nào</Text>
-          </Pressable>
+
+          </ScrollView>
           :
           <View>
             <FlatList style={styles.fla}
@@ -221,7 +250,10 @@ const Cart = (props) => {
               keyExtractor={Math.random}
               showsVerticalScrollIndicator={false}
               showsHorizontalScrollIndicator={false}
-              onTouchMove={onRestartCart}>
+              refreshControl={
+                < RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+              }
+            >
             </FlatList>
 
             <View style={styles.inforContainer}>
@@ -252,13 +284,15 @@ const Cart = (props) => {
 export default Cart
 
 const styles = StyleSheet.create({
+  scr: {
+
+  },
   textLoading: {
     fontWeight: '600',
     fontSize: 20,
     alignSelf: 'center',
-    height: '100%',
+    height: 300,
     textAlignVertical: 'center',
-    marginBottom: -100,
   },
   txtButton: {
     fontWeight: '700',

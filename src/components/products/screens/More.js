@@ -12,7 +12,6 @@ const More = (props) => {
     async function fetchData() {
         setIsLoading(true);
         await onGetAllBrand();
-        console.log('brands: ', brands);
         setIsLoading(false);
     }
     useEffect(() => {
