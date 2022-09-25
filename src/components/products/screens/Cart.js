@@ -12,7 +12,7 @@ const Cart = (props) => {
   const { onAddCart, onAddCartDetail } = useContext(ProductContext);
   const { onGetOneUser } = useContext(UserContext);
 
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState(1);
 
 
   // reload
@@ -22,7 +22,7 @@ const Cart = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    onRestartCart();
+    fetchData();
     wait(1000).then(() => setRefreshing(false));
   }, []);
 
@@ -92,6 +92,7 @@ const Cart = (props) => {
       }
       setTotal(total0);
       if (total <= 0) {
+        console.log("Cart erro co total: ", haveItem);
         setHaveItem(false);
       }
     }
@@ -150,15 +151,25 @@ const Cart = (props) => {
       if (listCart0) {
         setListCart(JSON.parse(listCart0));
         setHaveItem(true);
+        console.log("Cart erro co sp1: ", haveItem);
+
         if (JSON.parse(listCart0).length == 0) {
           setHaveItem(false);
+          console.log("Cart erro co sp2: ", haveItem);
+
         } else {
           setHaveItem(true);
+          console.log("Cart erro co sp3: ", haveItem);
+
         }
       } else {
         setHaveItem(false);
+        console.log("Cart erro co sp4: ", haveItem);
+
       }
       onSetTotal();
+      console.log("Cart erro co sp000: ", haveItem);
+
     } catch (error) {
       console.log("Cart erro: ", error);
     }
@@ -184,6 +195,7 @@ const Cart = (props) => {
         setHaveItem(false);
       }
       onSetTotal();
+      console.log("Cart erro co sp: ", haveItem);
 
     } catch (error) {
       console.log("Cart erro: ", error);
@@ -234,7 +246,7 @@ const Cart = (props) => {
         <Text> </Text>
       </View>
       {
-        haveItem == false ?
+        haveItem === false ?
           <ScrollView style={styles.scr}
             refreshControl={
               < RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
